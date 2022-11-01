@@ -11,12 +11,12 @@ module.exports.pair = async() => {
     while (index < waitings.length) {
         for (let k = index + 1; k < waitings.length; k++) {
             if (
-                waitings[index].banUserIds.indexOf(waitings[k].userId) === -1 &&
-                waitings[k].banUserIds.indexOf(waitings[index].userId) === -1
+                waitings[index].banUserIds.split(',').indexOf(waitings[k].userId) === -1 &&
+                waitings[k].banUserIds.split(',').indexOf(waitings[index].userId) === -1
             ) {
                 await createRoom([waitings[index].userId, waitings[k].userId])
-                waitings[index].remove()
-                waitings[k].remove()
+                await datastore.delete(waitings[index][datastore.KEY])
+                await datastore.delete(waitings[k][datastore.KEY])
                 waitings.splice(k, 1)
 
                 k = waitings.length

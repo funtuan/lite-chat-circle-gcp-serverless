@@ -1,9 +1,14 @@
 
 // 換成 gcp upload 
-const imgur = require('imgur')
+const { ImgurClient } = require('imgur')
 const { datastore, Kinds } = require('./datastore')
 const { getUserStatus, setUserStatus } = require('./user')
 const { sendText, sendMenu, sendRead } = require('./messenger')
+const {
+    IMGUR_CLIENT_ID,
+    IMGUR_CLIENT_SECRET,
+    IMGUR_REFRESH_TOKEN,
+} = require('../config');
 
 
 module.exports.createRoom = async (userIds) => {
@@ -30,7 +35,7 @@ module.exports.createRoom = async (userIds) => {
 
         setTimeout(()=> {
             sendMenu(userId, 'startRoom')
-        }, 1000)
+        }, 100)
     }
     return;
 }
@@ -87,7 +92,15 @@ module.exports.userLeaveRoom = async (userId) => {
 
 module.exports.addChat = async (userId, onlineRoomId, data) => {
     if (data.type === 'image') {
-        const json = await imgur.uploadUrl(data.payload.url)
+        const client = new ImgurClient({
+            clientId: IMGUR_CLIENT_ID,
+            clientSecret: IMGUR_CLIENT_SECRET,
+            refreshToken: IMGUR_REFRESH_TOKEN,
+        })
+        const json = await client.upload({
+            image: data.payload.url,
+            title: new Date().toISOString(),
+        })
         if (json.data && json.data.link) {
             data.text = json.data.link
         }
@@ -101,6 +114,14 @@ module.exports.addChat = async (userId, onlineRoomId, data) => {
         otherUserAtRooms = otherUserAtRooms.filter(otherUserAtRoom => otherUserAtRoom.userId !== userId)
 
         for (const otherUserAtRoom of otherUserAtRooms) {
+            const {
+                status,
+                onlineRoomId: otherOnlineRoomId,
+            } = await getUserStatus(otherUserAtRoom.userId)
+            if (status != 'room' || onlineRoomId != otherOnlineRoomId) {
+                console.log('addChat: user not in room userId=', otherUserAtRoom.userId)
+                continue;
+            }
             switch (data.type) {
                 case 'text':
                     await sendText(otherUserAtRoom.userId, {

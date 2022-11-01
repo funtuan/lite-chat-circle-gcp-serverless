@@ -87,7 +87,7 @@ async function imageHandler(data) {
     if (sticker_id && likeStickerIds.indexOf(sticker_id) !== -1) {
         sendMenu(data.userId, status)
     }
-    if (!sticker_id && data.user.onlineRoom) {
+    if (!sticker_id && onlineRoomId) {
         addChat(data.userId, onlineRoomId, data)
     }
 }

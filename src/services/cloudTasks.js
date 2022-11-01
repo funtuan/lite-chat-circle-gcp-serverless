@@ -1,9 +1,8 @@
 
-const {v2beta3} = require('@google-cloud/tasks');
 const {CloudTasksClient} = require('@google-cloud/tasks');
 
 // Instantiates a client.
-const client = new CloudTasksClient();
+const client = new CloudTasksClient({ fallback: true });
 const {
     CLOUD_TASKS_PROJECT,
     CLOUD_TASKS_LOCATION,
@@ -13,9 +12,9 @@ const {
 } = require('../config');
 
 
-const pairParent = client.queuePath(CLOUD_TASKS_PROJECT, CLOUD_TASKS_LOCATION, CLOUD_TASKS_PAIR_QUEUE);
 
 module.exports.addPairTask = async () => {
+  const pairParent = client.queuePath(CLOUD_TASKS_PROJECT, CLOUD_TASKS_LOCATION, CLOUD_TASKS_PAIR_QUEUE);
   const task = {
     httpRequest: {
         headers: {
@@ -23,6 +22,9 @@ module.exports.addPairTask = async () => {
         },
         httpMethod: 'POST',
         url: CLOUD_TASKS_PAIR_URL,
+        oidcToken: {
+          serviceAccountEmail: CLOUD_TASKS_EMAIL,
+        },
     }
   };
 

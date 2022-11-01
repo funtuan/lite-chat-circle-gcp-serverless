@@ -12,3 +12,11 @@ indexes:
   - name: userId
   - name: createdAt
     direction: desc
+
+- kind: UserAtRoom
+  properties:
+  - name: roomId
+  - name: createdAt
+    direction: desc
+
+# gcloud datastore indexes create index.yaml

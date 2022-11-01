@@ -35,15 +35,20 @@ module.exports.userAddWaiting = async (userId) => {
         const roomIds = historyUserAtRooms.slice(0, REPEAT_LIMIT).map(userAtRoom => userAtRoom.roomId)
 
         const tasks = roomIds.map(async roomId => {
-            return await datastore.runQuery(
+            const [data] = await datastore.runQuery(
                 datastore.createQuery(Kinds.userAtRoom)
                     .filter('roomId', roomId)
                     .order('createdAt', { descending: true })
             )
+            return data
         })
         const historyOtherUserAtRooms = (await Promise.all(tasks)).flat()
 
-        const banUserIds = historyOtherUserAtRooms.map(userAtRoom => userAtRoom.userId)
+        const banUserIds = [...new Set(
+            historyOtherUserAtRooms
+            .filter(userAtRoom => userAtRoom.userId !== userId)
+            .map(userAtRoom => userAtRoom.userId)
+        )].join(',')
         await datastore.upsert({
             key: waitingKey,
             data: {
