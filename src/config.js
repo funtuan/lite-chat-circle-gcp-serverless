@@ -1,0 +1,13 @@
+
+module.exports = {
+    PAGE_ACCESS_TOKEN: '',
+    VALIDATION_TOKEN: '',
+    DAILY_PAIR_LIMIT: 10,
+    REPEAT_LIMIT: 3,
+
+    CLOUD_TASKS_PROJECT: '',
+    CLOUD_TASKS_LOCATION: '',
+    CLOUD_TASKS_EMAIL: '',
+    CLOUD_TASKS_PAIR_QUEUE: '',
+    CLOUD_TASKS_PAIR_URL: '',
+}

@@ -1,0 +1,14 @@
+indexes:
+
+- kind: UserAtRoom
+  properties:
+  - name: roomId
+  - name: userId
+  - name: createdAt
+    direction: desc
+
+- kind: UserAtRoom
+  properties:
+  - name: userId
+  - name: createdAt
+    direction: desc

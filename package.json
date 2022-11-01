@@ -1,0 +1,22 @@
+{
+  "name": "gcp-ncc-serverless",
+  "version": "0.1.0",
+  "description": "",
+  "main": "src",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "serverless.com",
+  "license": "MIT",
+  "devDependencies": {
+    "serverless-google-cloudfunctions": "*"
+  },
+  "dependencies": {
+    "@google-cloud/datastore": "^7.0.0",
+    "@google-cloud/tasks": "^3.0.4",
+    "dayjs": "^1.11.6",
+    "fb-messenger": "^2.3.1",
+    "imgur": "^2.2.0",
+    "tslib": "^2.4.0"
+  }
+}
