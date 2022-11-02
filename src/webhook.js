@@ -88,49 +88,51 @@ module.exports.webhook = async (req, res) => {
         if (data.object == 'page') {
             var messagingList = data.entry[0].messaging;
 
-            for (const messagingEvent of messagingList) {
-
-                const {
-                    type,
-                } = parseEventType(messagingEvent);
-
-                if (type === 'messages') {
-                    if (messagingEvent.message.text) {
-                        message({
-                            userId: `fb:${messagingEvent.sender.id}`,
-                            type: 'text',
-                            text: messagingEvent.message.text,
-                        })
-                    }
-                    if (messagingEvent.message.attachments) {
-                        for (const attachment of messagingEvent.message.attachments) {
-                            message({
-                                userId: `fb:${messagingEvent.sender.id}`,
-                                type: attachment.type,
-                                payload: attachment.payload,
-                            })
-                        }
-                    }
-                }
-                if (type === 'messaging_postbacks') {
-                    if (messagingEvent.postback) {
-                        message({
-                            userId: `fb:${messagingEvent.sender.id}`,
-                            type: 'postback',
-                            postback: messagingEvent.postback,
-                        })
-                    }
-                }
-                if (type === 'message_reads') {
-                    message({
-                        userId: `fb:${messagingEvent.sender.id}`,
-                        type: 'read',
-                        timestamp: messagingEvent.timestamp,
-                    })
-                }
-            }
+            await Promise.all(messagingList.map(processMessagingEvent))
         }
     } else {
         res.status(400).send(new Error('Unrecognized method "' + req.method + '"'))
     }
 };
+
+async function processMessagingEvent(messagingEvent) {
+
+    const {
+        type,
+    } = parseEventType(messagingEvent);
+
+    if (type === 'messages') {
+        if (messagingEvent.message.text) {
+            message({
+                userId: `fb:${messagingEvent.sender.id}`,
+                type: 'text',
+                text: messagingEvent.message.text,
+            })
+        }
+        if (messagingEvent.message.attachments) {
+            for (const attachment of messagingEvent.message.attachments) {
+                message({
+                    userId: `fb:${messagingEvent.sender.id}`,
+                    type: attachment.type,
+                    payload: attachment.payload,
+                })
+            }
+        }
+    }
+    if (type === 'messaging_postbacks') {
+        if (messagingEvent.postback) {
+            message({
+                userId: `fb:${messagingEvent.sender.id}`,
+                type: 'postback',
+                postback: messagingEvent.postback,
+            })
+        }
+    }
+    if (type === 'message_reads') {
+        message({
+            userId: `fb:${messagingEvent.sender.id}`,
+            type: 'read',
+            timestamp: messagingEvent.timestamp,
+        })
+    }
+}

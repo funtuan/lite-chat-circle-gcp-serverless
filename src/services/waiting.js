@@ -8,9 +8,11 @@ const { addPairTask } = require('./cloudTasks');
 module.exports.userAddWaiting = async (userId) => {
     
     const waitingKey = datastore.key([Kinds.waiting, userId])
+    console.log('userAddWaiting 1')
     const [waitings] = await datastore.runQuery(
         datastore.createQuery(Kinds.waiting).filter('__key__', waitingKey)
     )
+    console.log('userAddWaiting 2')
 
     if (waitings.length > 0) {
         // 正在等待
@@ -25,6 +27,7 @@ module.exports.userAddWaiting = async (userId) => {
                 .order('createdAt', { descending: true })
                 .limit(DAILY_PAIR_LIMIT)
         )
+        console.log('userAddWaiting 3')
         if (historyUserAtRooms.length >= DAILY_PAIR_LIMIT) {
             await sendText(userId, {
                 text: `今日配對次數已用盡，請明日再試，珍惜每天能配對的 ${DAILY_PAIR_LIMIT} 位同學！`,
@@ -43,13 +46,15 @@ module.exports.userAddWaiting = async (userId) => {
             return data
         })
         const historyOtherUserAtRooms = (await Promise.all(tasks)).flat()
+        console.log('userAddWaiting 4')
 
         const banUserIds = [...new Set(
             historyOtherUserAtRooms
             .filter(userAtRoom => userAtRoom.userId !== userId)
             .map(userAtRoom => userAtRoom.userId)
         )].join(',')
-        await datastore.upsert({
+
+        datastore.upsert({
             key: waitingKey,
             data: {
                 userId,
@@ -57,16 +62,22 @@ module.exports.userAddWaiting = async (userId) => {
                 createdAt: new Date(),
             },
         });
+        
+        console.log('userAddWaiting 5')
 
-        await setUserStatus(userId, 'waiting')
+        setUserStatus(userId, 'waiting')
+
+        console.log('userAddWaiting 6')
 
         // 加入等待完成
         sendMenu(userId, 'waiting')
-        await sendText(userId, {
+        sendText(userId, {
             text: `今日剩餘配對 ${DAILY_PAIR_LIMIT - historyUserAtRooms.length} 次，請珍惜每天能配對的 ${DAILY_PAIR_LIMIT} 位同學！`,
         })
 
+        console.log('userAddWaiting 7')
         await addPairTask()
+        console.log('userAddWaiting 8')
     }
 }
 
@@ -82,6 +93,6 @@ module.exports.userLeaveWaiting = async (userId) => {
         return
     }
     
-    await setUserStatus(userId, 'home')
+    setUserStatus(userId, 'home')
     sendMenu(userId, 'home')
 }

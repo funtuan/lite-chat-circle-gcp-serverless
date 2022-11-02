@@ -72,7 +72,7 @@ module.exports.userLeaveRoom = async (userId) => {
             onlineRoomId,
         } = await getUserStatus(otherUserAtRoom.userId)
 
-        if (status === 'room' && onlineRoomId === otherUserAtRoom.roomId) {
+        if (status === 'room' && onlineRoomId.id === otherUserAtRoom.roomId.id) {
             await setUserStatus(otherUserAtRoom.userId, 'home')
             await sendText(otherUserAtRoom.userId, {
                 text: '對方離開聊天，請重新配對',
@@ -118,7 +118,7 @@ module.exports.addChat = async (userId, onlineRoomId, data) => {
                 status,
                 onlineRoomId: otherOnlineRoomId,
             } = await getUserStatus(otherUserAtRoom.userId)
-            if (status != 'room' || onlineRoomId != otherOnlineRoomId) {
+            if (status != 'room' || onlineRoomId.id != otherOnlineRoomId.id) {
                 console.log('addChat: user not in room userId=', otherUserAtRoom.userId)
                 continue;
             }
