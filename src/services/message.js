@@ -1,10 +1,28 @@
 
+const fetch = require('node-fetch')
 const { userAddWaiting, userLeaveWaiting } = require('./waiting')
 const { addChat, readChat, userLeaveRoom } = require('./room')
 const { getUserStatus } = require('./user')
 const { sendMenu } = require('./messenger')
+const { TINYBIRD_TOKEN } = require('../config')
+
+const recordToTinybird = async (name, data) => {
+    const datasourceName = `chatcircle_${name}`
+    await fetch(
+        `https://api.tinybird.co/v0/events?name=${datasourceName}`,
+        {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: { Authorization: `Bearer ${TINYBIRD_TOKEN}` }
+        }
+    )
+}
 
 module.exports.message = async (data) => {
+    await recordToTinybird(`message_${data.type}`, {
+        ...data,
+        timestamp: new Date().toISOString(),
+    })
     if (!data.userId) {
         return;
     }
