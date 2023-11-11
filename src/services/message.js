@@ -21,7 +21,7 @@ const recordToTinybird = async (name, data) => {
 module.exports.message = async (data) => {
     await recordToTinybird(`message_${data.type}`, {
         ...data,
-        timestamp: new Date().toISOString(),
+        timestamp: +new Date(),
     })
     if (!data.userId) {
         return;
